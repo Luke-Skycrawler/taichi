@@ -153,6 +153,12 @@ class TypeCheck : public IRVisitor {
     auto pointee_type = stmt->src->ret_type.ptr_removed();
     if (auto bit_struct = pointee_type->cast<BitStructType>()) {
       stmt->ret_type = bit_struct->get_physical_type();
+    } else if(auto managed = pointee_type->cast<ManagedType>()) {
+      if(managed -> bits_decided){
+        stmt->ret_type = pointee_type->get_physical_type();
+      } else {
+        stmt->ret_type = pointee_type->get_compute_type();
+      }
     } else {
       stmt->ret_type = pointee_type->get_compute_type();
     }

@@ -332,6 +332,7 @@ void export_lang(py::module &m) {
              place_child(&expr, offset, snode,
                          get_current_program().get_snode_to_glb_var_exprs());
            })
+      .def("auto_place", &SNode::auto_place)
       .def("data_type", [](SNode *snode) { return snode->dt; })
       .def("name", [](SNode *snode) { return snode->name; })
       .def("get_num_ch",
@@ -1017,6 +1018,7 @@ void export_lang(py::module &m) {
            py::arg("digits_type"), py::arg("exponent_type"),
            py::arg("compute_type"), py::arg("scale"),
            py::return_value_policy::reference);
+      .def("get_managed_type", py::arg("is_signed"), py::arg("compute_type"),py::return_value_policy::reference)
 
   m.def("get_type_factory_instance", TypeFactory::get_instance,
         py::return_value_policy::reference);

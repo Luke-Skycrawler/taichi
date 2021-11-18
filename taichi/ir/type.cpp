@@ -209,6 +209,32 @@ std::string BitStructType::to_string() const {
   return str + ")";
 }
 
+ManagedType::ManagedType(bool is_signed, Type *compute_type)
+    : compute_type_(compute_type),
+      is_signed_(is_signed) {
+  TI_ASSERT(compute_type->is<PrimitiveType>());
+  TI_ASSERT(is_real(compute_type->as<PrimitiveType>()));
+  
+  // TI_ASSERT(member_types_.size() == member_bit_offsets_.size());
+  // int physical_type_bits = data_type_bits(physical_type);
+  // for (auto i = 0; i < member_types_.size(); ++i) {
+  //   CustomIntType *component_cit = nullptr;
+  //   if (auto cit = member_types_[i]->cast<CustomIntType>()) {
+  //     component_cit = cit;
+  //   } else if (auto cft = member_types_[i]->cast<CustomFloatType>()) {
+  //     component_cit = cft->get_digits_type()->as<CustomIntType>();
+  //   } else {
+  //     TI_NOT_IMPLEMENTED
+  //   }
+  //   auto bits_end = component_cit->get_num_bits() + member_bit_offsets_[i];
+  //   TI_ASSERT(physical_type_bits >= bits_end)
+  // }
+}
+
+std::string ManagedType::to_string() const {
+  return fmt::format("mt({}{})", is_signed_?"s":"u", compute_type_->to_string());
+}
+
 std::string BitArrayType::to_string() const {
   return fmt::format("ba({}x{})", element_type_->to_string(), num_elements_);
 }

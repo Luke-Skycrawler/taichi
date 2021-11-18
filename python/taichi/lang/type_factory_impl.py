@@ -48,7 +48,20 @@ class TypeFactory:
                                                exponent_type,
                                                compute_type,
                                                scale=scale)
+    def auto(self, signed=True, compute_type=None):
+        """Quantized type managed compiler. 
+            Currently only includes fixed point support.
 
+        Args:        
+            compute_type (DataType): Type for computation.
 
+        Returns:
+            DataType: The specified type.
+        """
+        if compute_type is None:
+            compute_type = impl.get_runtime().default_fp
+        if isinstance(compute_type, _ti_core.DataType):
+            compute_type = compute_type.get_ptr()
+        return self.core.get_managed_type(signed, compute_type)
 # Unstable API
 type_factory = TypeFactory()

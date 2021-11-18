@@ -136,6 +136,20 @@ class SNode:
         return SNode(
             self.ptr.bit_array(axes, dimensions, num_bits,
                                impl.current_cfg().packed))
+    
+    def auto_place(self, *args):
+        """Auto place a list of Taichi fields under the `self` container.
+        """
+        for arg in args:
+            if isinstance(arg, Field):
+                for var in arg.get_field_members():
+                    self.ptr.auto_place(var.ptr)
+            elif isinstance(arg, list):
+                for x in arg:
+                    self.auto_place(x)
+            else:
+                raise ValueError(f'{arg} cannot be placed')
+        return self
 
     def place(self, *args, offset=None, shared_exponent=False):
         """Places a list of Taichi fields under the `self` container.

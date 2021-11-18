@@ -236,6 +236,8 @@ class SNode {
 
   SNode &bit_struct(int bits, bool packed);
 
+  void auto_place(SNode *snode, Expr &expr, const std::vector<int> &offset);
+  
   SNode &bit_array(const std::vector<Axis> &axes,
                    const std::vector<int> &sizes,
                    int bits,

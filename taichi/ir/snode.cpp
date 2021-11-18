@@ -23,7 +23,7 @@ SNode &SNode::insert_children(SNodeType t) {
   std::memcpy(new_ch->physical_index_position, physical_index_position,
               sizeof(physical_index_position));
   new_ch->num_active_indices = num_active_indices;
-  if (type == SNodeType::bit_struct || type == SNodeType::bit_array) {
+  if (type == SNodeType::bit_struct || type == SNodeType::bit_array || type == SNodeType::unlimited) {
     new_ch->is_bit_level = true;
   } else {
     new_ch->is_bit_level = is_bit_level;
@@ -137,6 +137,16 @@ SNode &SNode::bit_struct(int num_bits, bool packed) {
       TypeFactory::get_instance().get_primitive_int_type(num_bits, false);
   return snode;
 }
+
+void SNode::auto_place(SNode *snode, Expr &expr, const std::vector<int> &offset) {
+  auto &snode = create_node({}, {}, SNodeType::unlimited, packed);
+  
+  snode.physical_type =
+      TypeFactory::get_instance().get_primitive_int_type(64, false);
+  place_child(&expr, offset, snode,
+              get_current_program().get_snode_to_glb_var_exprs());
+}
+
 
 SNode &SNode::bit_array(const std::vector<Axis> &axes,
                         const std::vector<int> &sizes,

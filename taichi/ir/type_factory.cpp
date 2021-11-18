@@ -76,6 +76,10 @@ Type *TypeFactory::get_custom_float_type(Type *digits_type,
   return custom_float_types[key].get();
 }
 
+Type *TypeFactory::get_managed_type(bool is_signed, Type *compute_type){
+  return std::make_unique<ManagedType>(is_signed,compute_type);
+}
+
 Type *TypeFactory::get_bit_struct_type(PrimitiveType *physical_type,
                                        std::vector<Type *> member_types,
                                        std::vector<int> member_bit_offsets) {

@@ -279,6 +279,27 @@ class CustomFloatType : public Type {
   Type *compute_type_{nullptr};
   float64 scale_;
 };
+class ManagedType : public Type {
+ public:
+  ManagedType(bool is_signed, Type *compute_type);
+
+  std::string to_string() const override;
+
+  Type *get_compute_type() override {
+    return compute_type_;
+  }
+
+  bool get_is_signed() const {
+    return is_signed_;
+  }
+
+ private:
+  // TODO(type): for now we can uniformly use i32 as the "compute_type". It may
+  // be a good idea to make "compute_type" also customizable.
+  Type *compute_type_{nullptr};
+  bool is_signed_{true};
+  bool bits_decided{true};
+};
 
 class BitStructType : public Type {
  public:

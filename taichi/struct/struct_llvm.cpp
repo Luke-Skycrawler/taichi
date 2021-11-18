@@ -68,7 +68,7 @@ void StructCompilerLLVM::generate_types(SNode &snode) {
     body_type = ch_type;
   } else if (type == SNodeType::place) {
     body_type = tlctx_->get_data_type(snode.dt);
-  } else if (type == SNodeType::bit_struct) {
+  } else if (type == SNodeType::bit_struct || type == SNodeType::unlimited) {
     // Generate the bit_struct type
     std::vector<Type *> ch_types;
     std::vector<int> ch_offsets;
@@ -94,16 +94,27 @@ void StructCompilerLLVM::generate_types(SNode &snode) {
       ch->bit_offset = total_offset;
       total_offset += component_cit->get_num_bits();
       auto bit_struct_size = data_type_bits(snode.physical_type);
-      TI_ERROR_IF(total_offset > bit_struct_size,
+      TI_ERROR_IF(total_offset > bit_struct_size && type == SNodeType::bit_struct,
                   "Bit struct overflows: {} bits used out of {}.", total_offset,
                   bit_struct_size);
     }
+    if (type == SNodeType::bit_struct){
+      snode.dt = TypeFactory::get_instance().get_bit_struct_type(
+          snode.physical_type, ch_types, ch_offsets);
+      DataType container_primitive_type(snode.physical_type);
+      body_type = tlctx_->get_data_type(container_primitive_type);
+    } else {
+      if (bits_decided){
+        snode.dt = TypeFactory::get_instance().get_managed_type();
+      }
+      else {
+        snode.dt = TypeFactory::get_instance().get_bit_struct_type(
+            snode.physical_type, ch_types, ch_offsets);
+      }
+      DataType dt(snode.physical_type);
+      body_type = tlctx_->get_data_type(dt);
+    }
 
-    snode.dt = TypeFactory::get_instance().get_bit_struct_type(
-        snode.physical_type, ch_types, ch_offsets);
-
-    DataType container_primitive_type(snode.physical_type);
-    body_type = tlctx_->get_data_type(container_primitive_type);
   } else if (type == SNodeType::bit_array) {
     // A bit array SNode should have only one child
     TI_ASSERT(snode.ch.size() == 1);
@@ -233,7 +244,7 @@ void StructCompilerLLVM::generate_child_accessors(SNode &snode) {
   auto type = snode.type;
   stack.push_back(&snode);
 
-  bool is_leaf = type == SNodeType::place;
+  bool is_leaf = type == SNodeType::place || type == SNodeType::auto_place;
 
   if (!is_leaf) {
     generate_refine_coordinates(&snode);
